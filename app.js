@@ -41,6 +41,13 @@ const httpRequestListener = (request, response) => {
     } else if (url === '/posts') {
       response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify({ data: posts }));
+    } else if (url.startsWith('/users')) {
+      const userId = parseInt(url.split('/')[2]);
+      const userPost = users.find((user) => user.id === userId); // user는 유일하므로 find 하나의 값만 찾는 고차함수
+      userPost['postings'] = posts.filter((post) => post.userId === userId); //포스트는 여러개 이므로 filter
+
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ data: userPost }));
     }
   } else if (method === 'POST') {
     if (url === '/users') {
