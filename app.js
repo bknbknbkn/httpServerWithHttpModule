@@ -109,6 +109,21 @@ const httpRequestListener = (request, response) => {
         }
       });
     }
+  } else if (method === 'DELETE') {
+    if (url.startsWith('/posts')) {
+      const postId = parseInt(url.split('/')[2]); //    /posts/10
+      const postIndex = posts.findIndex((obj) => obj.id === postId);
+      if (postIndex !== -1) {
+        posts.splice(postIndex, 1);
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(JSON.stringify({ message: 'postingDeleted' }));
+      } else {
+        response.writeHead(200, { 'Content-Type': 'application/json' });
+        response.end(
+          JSON.stringify({ message: '존재하지 않는 게시물 입니다.' })
+        );
+      }
+    }
   }
 };
 
