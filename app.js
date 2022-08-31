@@ -38,6 +38,9 @@ const httpRequestListener = (request, response) => {
     if (url === '/ping') {
       response.writeHead(200, { 'Content-Type': 'application/json' });
       response.end(JSON.stringify({ message: 'pong' }));
+    } else if (url === '/posts') {
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify({ data: posts }));
     }
   } else if (method === 'POST') {
     if (url === '/users') {
@@ -59,10 +62,10 @@ const httpRequestListener = (request, response) => {
       request.on('data', (data) => (rawData += data));
       request.on('end', () => {
         const post = JSON.parse(rawData);
-        //userId는 유일하다고 가정하여 찾은 첫번째 값을 반환하는 find함수를 사용-> 근데 이경우 만족하는 값을
-        //반환 하게 되는데 만약 userId가 0이라면? if 분기에 넣었을 때 의도하지 않은 방식으로 동작 할 가능성 존재
         const isExist = users.some((user) => user.id === post.userId);
-        if (isExist) {
+        const isAlreadyPost = posts.some((postObj) => postObj.id === post.id);
+        console.log(isAlreadyPost);
+        if (isExist && !isAlreadyPost) {
           posts.push({
             id: post.id,
             title: post.title,
@@ -73,7 +76,11 @@ const httpRequestListener = (request, response) => {
           response.end(JSON.stringify({ message: 'postCreated' }));
         } else {
           response.writeHead(201, { 'Content-Type': 'application/json' });
-          response.end(JSON.stringify('존재하지 않는 유저 아이디 입니다'));
+          response.end(
+            JSON.stringify(
+              '존재하지 않는 유저 아이디 또는 유효하지 않은 포스트 id 입니다'
+            )
+          );
         }
       });
     }
