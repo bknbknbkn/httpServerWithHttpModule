@@ -84,6 +84,31 @@ const httpRequestListener = (request, response) => {
         }
       });
     }
+  } else if (method === 'PATCH') {
+    if (url.startsWith('/posts')) {
+      const postId = parseInt(url.split('/')[2]);
+      let rawData = '';
+
+      request.on('data', (data) => (rawData += data));
+      request.on('end', () => {
+        const post = JSON.parse(rawData);
+
+        let target = posts.find((postObj) => {
+          return postObj.id === postId && postObj.userId === post.userId;
+        });
+        console.log(target);
+
+        if (target === undefined) {
+          response.writeHead(201, { 'Content-Type': 'application/json' });
+          response.end(JSON.stringify('잘못된 접근 입니다'));
+        } else {
+          target.title = post.title;
+          target.content = post.content;
+          response.writeHead(201, { 'Content-Type': 'application/json' });
+          response.end(JSON.stringify({ data: posts }));
+        }
+      });
+    }
   }
 };
 
